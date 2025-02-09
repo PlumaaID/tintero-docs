@@ -1,0 +1,197 @@
+---
+title: ITinteroVault
+description: Interface for TinteroVault contract
+---
+
+**Inherits:**
+[IERC4626](https://docs.openzeppelin.com/contracts/5.x/api/interfaces#IERC4626)
+
+*Interface for an ERC4626 that manages ITinteroLoan contracts.
+The vault's assets are either lent to Loan contracts or delegated to other addresses
+to maximize the utilization of the assets.*
+
+
+## Functions
+### totalAssetsDelegated
+
+*The total amount of idle assets delegated.*
+
+
+```solidity
+function totalAssetsDelegated() external view returns (uint256);
+```
+
+### delegatedTo
+
+*The total amount of idle assets delegated to an address.*
+
+
+```solidity
+function delegatedTo(address delegate) external view returns (uint256);
+```
+
+### totalAssetsLent
+
+*The total amount of assets lent to Loan contracts.*
+
+
+```solidity
+function totalAssetsLent() external view returns (uint256);
+```
+
+### lentTo
+
+*The total amount of assets lent to a Loan contract.*
+
+
+```solidity
+function lentTo(address loan) external view returns (uint256);
+```
+
+### isLoan
+
+*Whether a Loan contract is managed by this vault.*
+
+
+```solidity
+function isLoan(address loan) external view returns (bool);
+```
+
+### askDelegation
+
+*Delegates assets to an address.*
+
+
+```solidity
+function askDelegation(uint256 amount) external;
+```
+
+### refundDelegation
+
+*Refunds delegated assets from an address.*
+
+
+```solidity
+function refundDelegation(uint256 amount) external;
+```
+
+### forceRefundDelegation
+
+
+```solidity
+function forceRefundDelegation(address delegate, uint256 amount) external;
+```
+
+### requestLoan
+
+*Creates a new instance of a Loan contract with the provided parameters.*
+
+
+```solidity
+function requestLoan(
+    address collateralCollection,
+    address beneficiary,
+    uint24 defaultThreshold,
+    PaymentLib.Payment[] calldata payments,
+    uint256[] calldata collateralTokenIds,
+    bytes32 salt
+) external;
+```
+
+### pushPayments
+
+*Adds a list of payments to a Loan contract. Calls Loan#pushPayments.*
+
+
+```solidity
+function pushPayments(ITinteroLoan loan, uint256[] calldata collateralTokenIds, PaymentLib.Payment[] calldata payments)
+    external;
+```
+
+### onDebit
+
+*Debits an outstanding principal from a Loan contract.*
+
+
+```solidity
+function onDebit(uint256 principal) external;
+```
+
+### pushTranches
+
+*Adds a list of tranches to a Loan contract. Calls Loan#pushTranches.*
+
+
+```solidity
+function pushTranches(ITinteroLoan loan, uint96[] calldata paymentIndexes, address[] calldata recipients) external;
+```
+
+### fundN
+
+*Funds `n` payments from a Loan contract. Calls Loan#fundN.*
+
+
+```solidity
+function fundN(ITinteroLoan loan, uint256 n) external;
+```
+
+### repossess
+
+*Repossess a range of payments from a Loan contract. Calls Loan#repossess.*
+
+
+```solidity
+function repossess(ITinteroLoan loan, uint256 start, uint256 end, address receiver) external;
+```
+
+### upgradeLoan
+
+*Upgrades a Loan contract to a new implementation. Calls Loan#upgradeLoan.*
+
+
+```solidity
+function upgradeLoan(ITinteroLoan loan, address newImplementation, bytes calldata data) external;
+```
+
+## Events
+### LoanCreated
+*Emitted when a Loan contract is created by this vault.*
+
+
+```solidity
+event LoanCreated(address loan, address collateralCollection, address beneficiary, uint24 defaultThreshold);
+```
+
+### DelegateAssets
+*Emitted when assets are delegated to an address.*
+
+
+```solidity
+event DelegateAssets(address delegate, uint256 amount);
+```
+
+### DelegateRefunded
+*Emitted when assets are refunded from an address.*
+
+
+```solidity
+event DelegateRefunded(address delegate, uint256 amount);
+```
+
+## Errors
+### DuplicatedLoan
+*Reverts if a Loan contract is already created by this vault.*
+
+
+```solidity
+error DuplicatedLoan();
+```
+
+### OnlyManagedLoan
+*Reverts if the caller is not a Loan contract created by this vault.*
+
+
+```solidity
+error OnlyManagedLoan();
+```
+

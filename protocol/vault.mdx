@@ -1,0 +1,24 @@
+---
+icon: vault
+title: Vault Contract
+description: How Tintero Vaults are structured
+---
+
+The TinteroVault contract is a customization compliant with the [ERC-4626](https://eips.ethereum.org/EIPS/eip-4626) standard. The customization adds the following features:
+
+- **Capital Delegation**: The vault can delegate capital to other vaults.
+- **Vault Management**: The vault tightly incorporates the TinteroLoan contract to manage the lifecycle of loans. Permissions are defined once at the vault level and are inherited by the loans.
+- **Loan Request**: The vault can permissionlessly receive loan requests from any address.
+- **Accounting**: The vault keeps track of the total amount of assets in management considering the capital delegated and the active loans funded.
+
+<Note>
+The vault has an utilization rate that is the ratio of the total amount of assets in the vault to the total amount of assets delegated and lent out. Naturally, as the utilization rate goes up, the vault will restrict the amount of withdrawals to the current available assets.
+</Note>
+
+### Capital Delegation
+
+The vault can delegate capital to third-party entities specialized in capital management. The delegation is done with a 12-hour delay that allows the AccessManager admin to cancel the delegation if needed.
+
+### Vault Management
+
+The vault manager is a person or entity in charge of managing the vault's assets for the purpose of originating loans. They inspect and approve each loan request that is considered healthy for the vault.

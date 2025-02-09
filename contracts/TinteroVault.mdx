@@ -1,0 +1,407 @@
+---
+title: TinteroVault
+description: An ERC-4626 vault that allocates assets towards funding loans
+---
+
+**Inherits:**
+[ITinteroVault](/contracts/interfaces/ITinteroVault), [TinteroLoanFactory](/contracts/TinteroLoan), [ERC4626](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#ERC4626)
+
+**Author:**
+Ernesto García
+
+An [ERC4626](https://docs.openzeppelin.com/contracts/5.x/erc4626) vault that receives
+an ERC20 token in exchange for shares and allocates these assets towards funding Loan contracts
+collateralized by tokenized ERC721 obligations. Idle capital is delegated to other addresses to
+maximize the yield of the vault's assets.
+
+The contract keeps track of the total assets in management by suming the total assets lent to
+Loan contracts and the total assets held by the vault, allowing owners to withdraw their assets
+at any time unless the vault does not have enough assets to cover the withdrawal (i.e. everything is
+lent out or delegated).
+
+## Concepts
+
+- **Shares**: The vault's shares represent the ownership of the vault's assets. They can be
+redeemed for the underlying assets if the vault has enough liquidity. They appreciate in value
+as the vault's assets grow when Loan contracts are paid back.
+- **Assets**: The vault's assets are the ERC20 tokens lent to Loan contracts. They are used to
+fund Loan contracts and are returned to the vault plus interests when the Loan contracts are
+paid back.
+- **Loans**: Loan contracts are created by the vault and have a list of ERC721-backed payments.
+- **Tranches**: A tranche is a collection of Loan payments from whose payments are sent to a tranche
+recipient.
+- **Payments**: A payment has a principal amount in ERC20 tokens that is due at the end of the maturity
+period and defaults after the grace period. Each one is backed by an ERC721 token.
+
+## Requesting a Loan
+Any user can permissionlessly request a Loan by calling `requestLoan`. The Loan contract is created
+by the vault and the Loan contract address is added to the vault's list of authorized Loans. Must
+be funded by the vault by calling `fundN`.
+
+## Vault Management
+The vault is managed by an access manager instance that controls the permissions of critical
+vault's functions. These functions include:
+
+- `askDelegation`: Takes assets from the vault to use them in other protocols to maximize the
+yield of the vault's assets.
+- `pushTranches`: Adds a list of tranches to a Loan contract.
+- `fundN`: Funds `n` payments from a Loan contract.
+- `repossess`: Repossess a range of payments from a Loan contract and cancels it. The Vault will
+receive the ERC721 tokens and will cancel the tracked assets lent (absorbing the loss).
+- `upgradeLoan`: Upgrades a Loan contract to a new implementation. Allows renegotiating the terms
+of the Loan contract.
+## KYC and Accredited Investors
+The `mint` and `deposit` functions are restricted to accredited investors that require a KYC check
+before providing liqudity. However, the `withdraw` and `redeem` functions are permissionless, so
+investors can withdraw their assets at any time as long as the vault has enough liquidity.
+
+<Note>
+security-contact: security@plumaa.id
+</Note>
+
+
+## State Variables
+
+### _totalAssetsDelegated
+
+```solidity
+uint256 private _totalAssetsDelegated;
+```
+
+
+### _delegatedTo
+
+```solidity
+mapping(address delegate => uint256 assets) private _delegatedTo;
+```
+
+
+### _totalAssetsLent
+
+```solidity
+uint256 private _totalAssetsLent;
+```
+
+
+### _lentTo
+
+```solidity
+mapping(address loan => uint256 assets) private _lentTo;
+```
+
+
+### _loans
+
+```solidity
+EnumerableSet.AddressSet private _loans;
+```
+
+
+## Functions
+### onlyLoan
+
+*Reverts if the provided address is not a loan managed by this vault.*
+
+
+```solidity
+modifier onlyLoan(address loan);
+```
+
+### constructor
+
+*Constructor for Tintero Vault.*
+
+
+```solidity
+constructor(IERC20Metadata asset_, address authority_)
+    ERC20(_prefix("Tinted ", asset_.name()), _prefix("t", asset_.symbol()))
+    ERC4626(asset_)
+    AccessManaged(authority_);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`asset_`|`IERC20Metadata`|The ERC20 token to be lent.|
+|`authority_`|`address`|The access manager for the vault.|
+
+
+### totalAssetsDelegated
+
+*The total amount of idle assets delegated.*
+
+
+```solidity
+function totalAssetsDelegated() public view returns (uint256);
+```
+
+### delegatedTo
+
+*The total amount of assets delegated to an address.*
+
+
+```solidity
+function delegatedTo(address delegate) public view returns (uint256);
+```
+
+### totalAssetsLent
+
+*The total amount of assets lent to Loan contracts.*
+
+
+```solidity
+function totalAssetsLent() public view returns (uint256);
+```
+
+### lentTo
+
+*The total amount of assets lent to a Loan contract.*
+
+
+```solidity
+function lentTo(address loan) public view returns (uint256);
+```
+
+### isLoan
+
+*Whether a Loan contract is managed by this vault.*
+
+
+```solidity
+function isLoan(address loan) public view returns (bool);
+```
+
+### totalAssets
+
+*See [totalAssets](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#ERC4626-totalAssets--).*
+
+
+```solidity
+function totalAssets() public view override(ERC4626, IERC4626) returns (uint256);
+```
+
+### maxWithdraw
+
+*The maximum amount of assets that can be withdrawn.
+This is the minimum between the owner's max withdrawable assets and the vault's asset balance.*
+
+
+```solidity
+function maxWithdraw(address owner) public view override(ERC4626, IERC4626) returns (uint256);
+```
+
+### maxRedeem
+
+*The maximum amount of shares that can be redeemed.
+This is the minimum between the owner's max redeemable shares and the vault's asset balance.*
+
+
+```solidity
+function maxRedeem(address owner) public view override(ERC4626, IERC4626) returns (uint256);
+```
+
+### deposit
+
+*Deposit assets. Restricted to accredited investors.*
+
+
+```solidity
+function deposit(uint256 assets, address receiver) public override(ERC4626, IERC4626) restricted returns (uint256);
+```
+
+### mint
+
+*Mints shares. Restricted to accredited investors.*
+
+
+```solidity
+function mint(uint256 shares, address receiver) public override(ERC4626, IERC4626) restricted returns (uint256);
+```
+
+### askDelegation
+
+*Delegates assets to an address.*
+
+
+```solidity
+function askDelegation(uint256 amount) external restricted;
+```
+
+### refundDelegation
+
+*Refunds delegated assets from an address.*
+
+
+```solidity
+function refundDelegation(uint256 amount) external;
+```
+
+### forceRefundDelegation
+
+*Forces the vault to take back delegated assets from a delegate if they deposit them back.*
+
+
+```solidity
+function forceRefundDelegation(address delegate, uint256 amount) external;
+```
+
+### requestLoan
+
+*Creates a new instance of a Loan contract with the provided parameters.
+
+Requirements:
+
+- The loan MUST NOT have been created.
+- Those of SafeERC20.safeIncreaseAllowance.
+- Those of Loan#pushPayments.*
+
+
+```solidity
+function requestLoan(
+    address collateralCollection,
+    address beneficiary,
+    uint24 defaultThreshold,
+    PaymentLib.Payment[] calldata payments,
+    uint256[] calldata collateralTokenIds,
+    bytes32 salt
+) external;
+```
+
+### pushPayments
+
+*Adds a list of payments to a Loan contract. Calls Loan#pushPayments.
+
+Requirements:
+
+- The loan MUST be created by this vault.
+- Those of SafeERC20.safeIncreaseAllowance.
+- Those of Loan#pushPayments.*
+
+
+```solidity
+function pushPayments(ITinteroLoan loan, uint256[] calldata collateralTokenIds, PaymentLib.Payment[] calldata payments)
+    external
+    onlyLoan(address(loan));
+```
+
+### onDebit
+
+*Debits an outstanding principal from a Loan contract.
+Must be called by the Loan contract when a payment is either:
+- Repaid (value is accrued through interest)
+- Repossessed (value is lost)*
+
+
+```solidity
+function onDebit(uint256 principal) external onlyLoan(msg.sender);
+```
+
+### pushTranches
+
+*Adds a list of tranches to a Loan contract. Calls Loan#pushTranches.
+
+Requirements:
+
+- The loan MUST be created by this vault.
+- Those of Loan#pushTranches.*
+
+
+```solidity
+function pushTranches(ITinteroLoan loan, uint96[] calldata paymentIndexes, address[] calldata recipients)
+    external
+    restricted
+    onlyLoan(address(loan));
+```
+
+### fundN
+
+*Funds `n` payments from a Loan contract. Calls Loan#fundN.
+
+Requirements:
+
+- The loan MUST be created by this vault.
+
+<Note>
+The manager MUST ensure that tranches are paid back to the vault in
+a way that covers at least the principal lent. Otherwise, the vault will
+loose value even if the Loan contract is paid back.*
+</Note>
+
+
+```solidity
+function fundN(ITinteroLoan loan, uint256 n) external restricted onlyLoan(address(loan));
+```
+
+### repossess
+
+*Repossess a range of payments from a Loan contract. Calls Loan#repossess.
+
+Requirements:
+
+- The loan MUST be created by this vault.
+- The receiver must implement IERC721Receiver to receive the collateral (if contract).
+- Those of Loan#repossess.*
+
+
+```solidity
+function repossess(ITinteroLoan loan, uint256 start, uint256 end, address receiver)
+    external
+    restricted
+    onlyLoan(address(loan));
+```
+
+### upgradeLoan
+
+*Upgrades a Loan contract to a new implementation. Calls Loan#upgradeLoan.
+
+Requirements:
+
+- The loan MUST be created by this vault.
+- Those of Loan#upgradeLoan.*
+
+
+```solidity
+function upgradeLoan(ITinteroLoan loan, address newImplementation, bytes calldata data)
+    external
+    restricted
+    onlyLoan(address(loan));
+```
+
+### _refundDelegation
+
+*Refunds delegated assets from an address.*
+
+
+```solidity
+function _refundDelegation(address delegate, uint256 amount) internal;
+```
+
+### _pushPayments
+
+*Pushes a list of payments to a Loan contract and increases its allowance accordingly.*
+
+
+```solidity
+function _pushPayments(ITinteroLoan loan, uint256[] calldata collateralTokenIds, PaymentLib.Payment[] calldata payments)
+    internal;
+```
+
+### _decimalsOffset
+
+*Virtual offset to defend against inflation attacks.
+See https://docs.openzeppelin.com/contracts/5.x/erc4626#defending_with_a_virtual_offset*
+
+
+```solidity
+function _decimalsOffset() internal pure virtual override returns (uint8);
+```
+
+### _prefix
+
+*Prefixes a string with a given prefix.*
+
+
+```solidity
+function _prefix(string memory _p, string memory _str) internal pure returns (string memory);
+```
+

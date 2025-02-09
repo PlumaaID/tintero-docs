@@ -1,0 +1,31 @@
+---
+icon: file-contract
+title: About the protocol
+description: How Tintero works under the hood
+---
+
+Tintero is a set of smart contracts to which we refer to as _the protocol_. The protocol is composed by 4 smart contracts from which 2 are core to each Tintero pool and the other 2 can be considered accessories:
+
+### Pool contracts
+
+<CardGroup cols={1}>
+  <Card
+    title="TinteroVault"
+    icon="vault"
+    href="/protocol/vault"
+  >
+   An ERC-4626 vault with extra features to manage capital delegations and loan funding. It deploys instances of the TinteroLoan contract and is managed by the AccessManager contract.  
+  </Card>
+  <Card
+    title="Protocol"
+    icon="landmark"
+    href="/protocol/loan"
+  >
+    A state machine that manages the lifecycle of a loan structured as a series of payments, each one collateralized by an ERC-721 token that represents a discounted legally-binding obligations.
+  </Card>
+</CardGroup>
+
+### Accessory contracts
+
+- **AccessManager**: A contract that manages roles and permissions for all contracts in the Tintero protocol.
+- **Endorser**: An ERC-721 contract provided by [Plumaa ID](https://docs.plumaa.id) that represents a legally-binding obligation. Any other ERC-721 contract can be used as a collateral for each loan, independently of which vault it belongs to.

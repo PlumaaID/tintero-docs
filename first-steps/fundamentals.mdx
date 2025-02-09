@@ -1,0 +1,29 @@
+---
+icon: shapes
+title: Fundamentals
+description: How Tintero works
+---
+
+## The problem
+
+Asset-backed securities (ABS) are a type of financial instrument that is collateralized by a pool of assets. In traditional capital markets, these are set up through a trust fund that receives pooled funds from investors and are later allocated to individual consumer/business loans.
+
+These pool structures are often **inefficient** as they require the **borrower** to provide capital to back the loan, which stays in the trust without generating yield and often require hiring expensive and specialized legal and audit firms to manage and operate the trust fund.
+
+Some of the inefficiencies in the traditional ABS market are:
+
+- **High entry barriers**: The cost of setting up a trust fund is high, which makes it difficult for small and medium-sized enterprises to access capital markets.
+- **Lack of transparency**: The trust fund structure is complex and opaque, which makes it difficult for investors to understand the underlying assets and risks.
+- **High operational costs**: The trust fund requires expensive legal and audit services to operate, which increases the cost of borrowing for the borrower.
+
+## Tokenized Obligations
+
+Third-party services like [Plumaa ID](https://docs.plumaa.id) can leverage trust providers and digital signatures to create legally-binding obligations whose identifier (e.g. SHA-256 hash) is stored on-chain as an ERC-721 token. 
+
+By verifying its provenance characteristics such as digital signatures, timestamps and KYC/AML checks, it is possible to create a more efficient and transparent way to manage asset-backed securities without the need for expensive trust funds and legal services given the token ownership is tracked using a decentralized ledger.
+
+## Bringing on-chain liquidity
+
+Having tokenized obligations on-chain allow to leverage blockchain liquidity to fund these obligations. Although this can be done manually where the **borrower** sends the tokenized obligation to a **financial institution** that provides liquidity directly to the **beneficiary**, these processes can be automated using smart contracts.
+
+Tintero automates these rules and presents a decentralized alternative to traditional ABS markets. The protocol desintermediates trust funds, legal services and audit firms by leveraging blockchain technology to deliver a smoother experience to both borrowers, investors and beneficiaries who receive their money via wallet partners like [Plumaa ID](https://docs.plumaa.id).

@@ -1,0 +1,28 @@
+---
+title: Overview
+description: Protocol overview
+---
+
+Tintero is an asset-backed security (ABS) lending protocol that provides liquidity in exchange for tokenized receivables (or any negotiable instrument). These negotiable instruments are represented as NFTs whose identifier is the hash of a document representing the underlying asset.
+
+Investors can deposit their assets in a Tintero vault (e.g USDC) and receive shares in exchange. These shares are later allocated towards funding loans approved by a vault manager.
+
+On the other side, asset originators can write loans, leases, or any other kind of Real World Asset (RWA) and tokenize them using [Plumaa ID](https://plumaa.id). These tokens are used as collateral to request a loan from a Tintero vault. If the manager approves the loan, the loan is funded and the principal is transferred to a beneficiary address.
+
+Assets are represented through the Endorser contract, an ERC721 token that uses a document hash as a token id. It complies with data preservation requirements and a non-interrupted chain of endorsements under Mexican commercial and debt instruments law by indexing the chain of transfers (i.e. endorsements) whose signatures are non-repudiably linked to the user's address when transferring via Plumaa ID.
+
+The content of documents remains private since the system only track hashes.
+
+# Summary
+
+- [Endorser](/contracts/Endorser)
+- [TinteroVault](/contracts/TinteroVault)
+- [TinteroLoan](/contracts/TinteroLoan)
+  - [TinteroLoanFactory](/contracts//TinteroLoan#tinteroloanfactory)
+  - [TinteroLoanStorage](/contracts/TinteroLoan#tinteroloanstorage)
+  - [TinteroLoanView](/contracts/TinteroLoan#tinteroloanview)
+- Interfaces
+  - [ITinteroLoan](/contracts/interfaces/ITinteroLoan)
+  - [ITinteroVault](/contracts/interfaces/ITinteroVault)
+- Utils
+  - [PaymentLib](/contracts/utils/PaymentLib)

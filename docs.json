@@ -11,12 +11,50 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "First steps",
             "pages": [
-              "introduction"
+              "introduction",
+              "first-steps/fundamentals",
+              "first-steps/roles-and-management"
+            ]
+          },
+          {
+            "group": "Protocol",
+            "pages": [
+              "protocol/introduction",
+              "protocol/vault",
+              "protocol/loan",
+              "protocol/deployments"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Technical Reference",
+        "groups": [
+          {
+            "group": "Contracts",
+            "pages": [
+              "contracts/overview",
+              "contracts/Endorser",
+              "contracts/TinteroVault",
+              "contracts/TinteroLoan"
+            ]
+          },
+          {
+            "group": "Interfaces",
+            "pages": [
+              "contracts/interfaces/ITinteroVault",
+              "contracts/interfaces/ITinteroLoan"
+            ]
+          },
+          {
+            "group": "Utils",
+            "pages": [
+              "contracts/utils/PaymentLib"
             ]
           }
         ]
@@ -35,9 +73,9 @@
           "href": "https://plumaa.hall.community/support-QrQnRQlHB0WC"
         },
         {
-          "anchor": "Github",
-          "icon": "github",
-          "href": "https://github.com/PlumaaID"
+          "anchor": "Contracts",
+          "icon": "ethereum",
+          "href": "https://github.com/PlumaaID/tintero"
         }
       ]
     }
@@ -55,9 +93,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/tinteroprotocol",
+      "github": "https://github.com/PlumaaID"
     }
   }
 }
